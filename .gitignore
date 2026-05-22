@@ -1,0 +1,54 @@
+# ==============================================================================
+# 1. BẢO MẬT & MÔI TRƯỜNG (QUAN TRỌNG NHẤT)
+# ==============================================================================
+# Chặn các file chứa mật khẩu kết nối Postgres, API Key của ByBit
+.env
+.env.*
+!.env.example
+
+# ==============================================================================
+# 2. DỮ LIỆU THÔ (RAW DATA & TEMP DATA)
+# ==============================================================================
+# Chặn toàn bộ các file CSV, GZ tải từ ByBit về ổ đĩa ảo để không làm sập Git
+*.csv
+*.gz
+*.parquet
+*.json
+
+# Chặn các thư mục lưu trữ dữ liệu tạm thời/raw của pipeline
+**/temp/
+**/raw/
+
+# ==============================================================================
+# 3. AIRFLOW AUTOMATION (DOCKER / LOCAL RUN)
+# ==============================================================================
+# Không đẩy các file logs chạy hằng ngày và các file sinh tự động của Airflow lên GitHub
+logs/
+plugins/
+.webserver_history
+airflow.cfg
+airflow.db
+
+# ==============================================================================
+# 4. PYTHON & CÁC THƯ VIỆN ẢO
+# ==============================================================================
+# Chặn các file biên dịch ngầm của Python và thư mục ảo (.venv) nếu có
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==============================================================================
+# 5. CẤU HÌNH TRÌNH SOẠN THẢO (IDE) & HỆ THỐNG
+# ==============================================================================
+# Chặn các file cấu hình riêng của VS Code hoặc hệ điều hành
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
