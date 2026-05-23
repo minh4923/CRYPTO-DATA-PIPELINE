@@ -16,7 +16,7 @@ x-airflow-common: &airflow-common
   environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor # chay trong 1 container khong phai distributed executor(schedule lam het bo worker)
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
-    AIRFLOW__CORE__FERNET_KEY: "k9890182903889071923jklhjsjkl"
+    AIRFLOW__CORE__FERNET_KEY: "xOkzhzym950DW_hYuIu0zPau7uTVcETuJZAn64-OtWw="
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session"
@@ -47,6 +47,22 @@ services:
       - bitcoin-pipeline-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  postgres:
+    image: postgres:15.3
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ohlcv
+    volumes:
+      - bitcoin-pipeline-postgres:/var/lib/postgresql/data:rw
+    networks:
+      - bitcoin-pipeline-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ohlcv"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -163,6 +179,7 @@ services:
       - 7077:7077
     volumes:
       - ./batch/spark/jobs:/opt/spark/jobs:rw
+      - bitcoin-pipeline-data:/opt/data:rw
     networks:
       - bitcoin-pipeline-network
   spark-worker-0:
@@ -177,6 +194,7 @@ services:
       SPARK_WORKER_CORES: 1
       SPARK_WORKER_MEMORY: 2g
     volumes:
+      - bitcoin-pipeline-data:/opt/data:rw
       - ./batch/spark/data:/opt/spark/data:rw
     ports:
       - 8081:8081
@@ -195,6 +213,7 @@ services:
     ports:
       - 8082:8081
     volumes:
+      - bitcoin-pipeline-data:/opt/data:rw
       - ./batch/spark/data:/opt/spark/data:rw
     networks:
       - bitcoin-pipeline-network

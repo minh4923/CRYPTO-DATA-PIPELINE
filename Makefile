@@ -28,7 +28,7 @@ clean:		## remove all images and rebuild from scratch
 	docker compose -f docker-compose.yaml --profile app build
 remove:		## remove docker volumes and network. remove will delete stored data
 	@echo -n "Are you sure you want to remove stored data? [y/N] " && read ans && [ $${ans:-N} = y ]
-	docker volume remove bitcoin-pipeline-redpanda
+# 	docker volume remove bitcoin-pipeline-redpanda
 	docker volume remove bitcoin-pipeline-data
 	docker volume remove bitcoin-pipeline-airflow-postgres
 	docker volume remove bitcoin-pipeline-postgres

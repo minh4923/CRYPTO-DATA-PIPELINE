@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from pyspark.sql import SparkSession, types, DataFrame
 import pyspark.sql.functions as F
@@ -69,15 +70,18 @@ def main():
     df_clean = clean_types(df)
     df_ohlcv = transform_ohlcv(df_clean)
     df_clean.write.parquet(args.output_raw, mode='overwrite')
+    # JDBC connection: allow overriding Postgres host via env `POSTGRES_HOST`
+    pg_host = os.getenv('POSTGRES_HOST', 'postgres')
+    jdbc_url = f'jdbc:postgresql://{pg_host}:5432/ohlcv'
     df_ohlcv.write \
         .jdbc(
-            'jdbc:postgresql://postgres:5432/ohlcv',
+            jdbc_url,
             args.output_db,
             mode='overwrite',
             properties={
-                'user':'postgres',
-                'password':'postgres',
-                'driver':'org.postgresql.Driver'
+                'user': os.getenv('POSTGRES_USER', 'postgres'),
+                'password': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+                'driver': 'org.postgresql.Driver'
             }
         )
     

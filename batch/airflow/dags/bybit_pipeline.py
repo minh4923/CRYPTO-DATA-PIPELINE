@@ -56,11 +56,18 @@ def bybit_pipeline():
         task_id='spark_transform',
         conn_id='spark_master',
         application='/opt/spark/jobs/transform_load_spark.py',
+        packages='org.postgresql:postgresql:42.6.0',
         application_args=[
             '--input', '{{ var.value.data_storage }}/temp/{{ var.json.bybit.product }}{{ ds }}.csv.gz',
             '--output_raw', '{{ var.value.data_storage }}/raw/{{ var.json.bybit.product }}/{{ ds }}',
             '--output_db', 'staging.{{ var.json.bybit.product }}{{ ds_nodash }}'
         ]
+    )
+
+    create_staging_schema = SQLExecuteQueryOperator(
+        task_id='create_staging_schema',
+        conn_id='postgres_ohlcv',
+        sql='create_staging_schema.sql'
     )
 
     upsert_db = SQLExecuteQueryOperator(
@@ -78,6 +85,7 @@ def bybit_pipeline():
     chain(
         wait_for_file(),
         download_data(),
+        create_staging_schema,
         transform_load_data,
         upsert_db,
         cleanup()
