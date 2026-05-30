@@ -9,11 +9,15 @@ from stream_tables import (
     create_source_schema, 
     create_kafka_source, 
     create_sink_schema, 
+    create_bigquery_sink,
     create_jdbc_sink
 )
 
 
 def main():
+    bigquery_project = os.environ['FLINK_BIGQUERY_PROJECT']
+    bigquery_dataset = os.environ['FLINK_BIGQUERY_DATASET']
+    bigquery_table = os.environ['FLINK_BIGQUERY_TABLE']
     postgres_url = os.environ['FLINK_POSTGRES_URL']
     postgres_username = os.environ['FLINK_POSTGRES_USERNAME']
     postgres_password = os.environ['FLINK_POSTGRES_PASSWORD']
@@ -27,9 +31,11 @@ def main():
 
     source_schema = create_source_schema()
     path_source = create_kafka_source(t_env, source_schema, redpanda_addr)
-    table = t_env.from_path(path_source) 
-    # để  có thể dùng các cú pháp Python như .select(), .window(), .group_by(), bạn bắt buộc phải dùng lệnh t_env.from_path('kafka_source')
+    table = t_env.from_path(path_source)
+
     sink_schema = create_sink_schema()
+    bigquery_sink = create_bigquery_sink(
+        t_env, sink_schema, bigquery_project, bigquery_dataset, bigquery_table)
     postgres_sink = create_jdbc_sink(
         t_env, sink_schema, postgres_url, postgres_username, postgres_password, postgres_table)    
 
@@ -49,8 +55,9 @@ def main():
                 col('p').last_value.alias('close'),
                 col('v').sum.alias('volume'))
         table.execute_insert(postgres_sink)
+        table.execute_insert(bigquery_sink)
     except Exception as e:
-        print("Writing records from Kafka to PostgreSQL failed:", str(e))
+        print("Writing records from Kafka to BigQuery failed:", str(e))
 
 
 if __name__ == '__main__':
