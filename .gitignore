@@ -52,3 +52,29 @@ pip-delete-this-directory.txt
 .idea/
 .DS_Store
 Thumbs.db
+
+# ==============================================================================
+# 6. ĐẦU RA BỔ SUNG & CACHE (DOCKER / PYTHON / DATABASE)
+# ==============================================================================
+# DuckDB / Local Database files
+*.db
+*.duckdb
+*.sqlite
+
+# Python build and testing artifacts
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Editor backup and temp files
+*.swp
+*.swo
+*~
+.history/
+
+# Standalone log files
+*.log
